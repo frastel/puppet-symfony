@@ -17,7 +17,7 @@ define symfony::project::create (
 ) {
 
   exec { "symfony_project_create_${name}":
-    name    => "composer create-project symfony/framework-standard-edition ${name} ${version}",
+    name    => "composer --no-interaction create-project symfony/framework-standard-edition ${name} ${version}",
     creates => $name,
     path    => ['/usr/bin', '/usr/local/bin'],
     user    => $user,
