@@ -1,5 +1,5 @@
 #
-# Installs the Symfony2 sandbox (standard edition) on the machine.
+# Installs the Symfony2 Standard Edition on the machine.
 #
 # Parameters:
 # version - the Symfony2 version (2.3.0, 2.3.1 etc),
@@ -7,16 +7,16 @@
 # user    - the owner of the project
 #
 # Sample usage:
-# symfony::sandbox { '/var/www/test':
+# symfony::project::create { '/var/www/test':
 #   user => 'vagrant',
 # }
 #
-define symfony::sandbox (
+define symfony::project::create (
   $version = undef,
   $user    = 'root',
 ) {
 
-  exec { "symfony_sandbox_install_${name}":
+  exec { "symfony_project_create_${name}":
     name    => "composer create-project symfony/framework-standard-edition ${name} ${version}",
     creates => $name,
     path    => ['/usr/bin', '/usr/local/bin'],
