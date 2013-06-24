@@ -13,7 +13,7 @@
 #
 define symfony::project::create (
   $version = undef,
-  $user    = 'root',
+  $user    = undef,
 ) {
 
   exec { "symfony_project_create_${name}":
