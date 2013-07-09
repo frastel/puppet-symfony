@@ -1,3 +1,4 @@
-symfony::project::create { '/var/www/test':
-  user => 'vagrant',
+symfony::project::create { 'test':
+  user        => 'vagrant',
+  working_dir => '/var/www',
 }
