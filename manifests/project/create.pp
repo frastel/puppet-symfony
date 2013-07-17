@@ -8,9 +8,10 @@
 #    the Symfony2 version (2.3.0, 2.3.1 etc),
 #    if not defined the latest one will be taken
 # [*user*]
-#    the owner of the project
+#    the owner of the project (defaults to root)
 # [*working_dir*]
-#    the directory where the composer command should be executed in
+#    the directory where the composer command should be executed in.
+#    The creation of this directory has to be ensured outside of this resource!
 #
 # === Examples
 #
@@ -22,25 +23,29 @@
 #
 define symfony::project::create (
   $version     = undef,
-  $user        = undef,
+  $user        = 'root',
   $working_dir = undef,
 ) {
 
-  exec { "symfony_project_create_${name}":
-    command => "composer --no-interaction create-project symfony/framework-standard-edition ${name} ${version} --working-dir=${working_dir}",
-    creates => "${working_dir}/${name}/composer.json",
-    path    => ['/usr/bin', '/usr/local/bin'],
+  # could not get it running without changing the working dir of composer in combination with puppet
+  $content = "#!/bin/sh
+    composer --no-interaction create-project symfony/framework-standard-edition ${name} ${version} > composer.log
+  "
+
+  file { "${working_dir}/create_project.sh":
+    ensure  => present,
+    owner   => $user,
+    group   => $user,
+    content => $content,
+    mode    => '0744'
   }
 
-  # composer command could not be called directly with given
-  # user due to some strange file permission problems
-  # therefore this ugly chown is done afterwards
-  if $user {
-    exec { "symfony_project_fix_user_${name}":
-      command => "chown -R ${user}:${user} ${working_dir}/${name}",
-      path    => ['/bin'],
-      require => Exec["symfony_project_create_${name}"],
-    }
+  exec { "symfony_project_create_${name}":
+    command   => './create_project.sh',
+    cwd       => $working_dir,
+    path      => [$working_dir, '/usr/bin', '/usr/local/bin'],
+    user      => $user,
+    creates   => "${working_dir}/${name}/composer.json",
   }
 
 }
